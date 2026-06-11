@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>리코더 교실 — 보고, 만지고, 들으면서 배우는 운지법</title>
+<meta name="description" content="소프라노 리코더 운지법을 인터랙티브하게 배우는 웹 교실. 운지 놀이터, 26개 음 운지표, 퀴즈, 따라 연주까지 — 설치 없이 바로 시작!">
+<meta name="theme-color" content="#F4F7FB">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='13' y='2' width='6' height='28' rx='3' fill='%234353E4'/%3E%3Ccircle cx='16' cy='12' r='2' fill='white'/%3E%3Ccircle cx='16' cy='18' r='2' fill='white'/%3E%3Ccircle cx='16' cy='24' r='2' fill='%23C84444'/%3E%3C/svg%3E">
+</head>
+<body>
+<a class="skip-link" href="#home">본문으로 건너뛰기</a>
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+
+<!-- ============ 헤더 ============ -->
+<header class="header">
+  <button id="menuBtn" class="icon-btn" aria-label="전체 메뉴 열기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <a class="brand" href="#home">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="13" y="2" width="6" height="28" rx="3" fill="var(--left)"/>
+      <rect x="13.8" y="3" width="2" height="26" rx="1" fill="#fff" opacity=".22"/>
+      <circle cx="16" cy="11" r="2.1" fill="var(--paper)"/>
+      <circle cx="16" cy="17" r="2.1" fill="var(--paper)"/>
+      <circle cx="16" cy="23" r="2.1" fill="var(--right)"/>
+    </svg>
+    <span class="name-txt">리코더 교실</span>
+  </a>
+  <button id="searchBtn" class="search-btn" aria-label="검색과 빠른 이동 (Ctrl+K)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <span class="label">음 이름, 노래, 무엇이든 검색</span>
+    <kbd>Ctrl K</kbd>
+  </button>
+  <div class="header-spacer"></div>
+  <div class="sys-toggle" role="group" aria-label="운지 체계 고르기" title="리코더 종류에 맞는 운지를 보여줘요">
+    <button data-sys="G" aria-pressed="true">독일식</button>
+    <button data-sys="B" aria-pressed="false">바로크식</button>
+  </div>
+  <button id="soundBtn" class="icon-btn" aria-pressed="true" aria-label="소리 끄기"></button>
+  <button id="motionBtn" class="icon-btn" aria-pressed="false" aria-label="모션 줄이기">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12c3-7 7 7 9 0s7-7 9 0"/></svg>
+  </button>
+  <button id="themeBtn" class="icon-btn" aria-label="테마 바꾸기"></button>
+</header>
+
+<!-- ============ 사이드바 (데스크톱) ============ -->
+<nav class="sidebar" aria-label="목차">
+  <span class="group-label">시작</span>
+  <a class="nav-link" href="#home" data-spy="home"><span class="dot" aria-hidden="true"></span>홈</a>
+  <a class="nav-link" href="#prep" data-spy="prep"><span class="dot" aria-hidden="true"></span>준비하기<span class="mini-count">5</span></a>
+  <span class="group-label">배우기</span>
+  <a class="nav-link" href="#learn" data-spy="learn"><span class="dot" aria-hidden="true"></span>운지 배우기<span class="mini-count">7세트</span></a>
+  <a class="nav-link" href="#chart" data-spy="chart"><span class="dot" aria-hidden="true"></span>운지표<span class="mini-count">26음</span></a>
+  <a class="nav-link" href="#playground" data-spy="playground"><span class="dot" aria-hidden="true"></span>운지 놀이터</a>
+  <span class="group-label">연습</span>
+  <a class="nav-link" href="#practice" data-spy="practice"><span class="dot" aria-hidden="true"></span>연습하기</a>
+  <span class="group-label">내 기록</span>
+  <a class="nav-link" href="#library" data-spy="library"><span class="dot" aria-hidden="true"></span>보관함</a>
+  <a class="nav-link" href="#guide" data-spy="guide"><span class="dot" aria-hidden="true"></span>가이드</a>
+  <div class="sidebar-progress">
+    <div class="row"><span class="label">나의 진도</span><span class="pct" id="sidebarPct">0%</span></div>
+    <div class="progress-dots" id="sidebarDots" role="img" aria-label="전체 진도"></div>
+  </div>
+</nav>
+
+<main class="main" id="main">
+
+  <!-- ============ 홈 ============ -->
+  <section class="section" id="home" aria-label="홈">
+    <div class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow"><span class="dots" aria-hidden="true"><i></i><i></i><i></i><i></i></span>SOPRANO RECORDER · 운지 실험실</span>
+        <h1>보고, <span class="hl-left">만지고</span>,<br><span class="hl-right">들으면서</span> 배우는<br>리코더 운지법</h1>
+        <p class="lead">구멍을 직접 눌러 보면 무슨 음인지 바로 알려주고, 진짜 소리로 들려줘요.
+          자세부터 높은 음까지 — 학교 음악 시간이 쉬워져요.</p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="#prep">처음부터 배우기</a>
+          <a class="btn btn-ghost" href="#chart">운지표 둘러보기</a>
+        </div>
+        <p class="hero-hint">서두르지 않아도 돼요 — 진도는 자동으로 저장돼요.<span class="kbd-only"> <kbd>Ctrl K</kbd>로 어디든 점프!</span></p>
+      </div>
+      <div class="playground-card" id="heroPlayground">
+        <div class="pg-head">
+          <span class="title">미니 운지 놀이터</span>
+          <span class="chip left">구멍을 눌러 보세요!</span>
+        </div>
+        <div class="playground-body">
+          <div class="pg-svg"></div>
+          <div class="playground-result">
+            <div class="note-name" aria-live="polite">솔</div>
+            <div class="note-en">G5</div>
+            <p class="guide"></p>
+            <div class="playground-actions">
+              <button class="btn btn-primary btn-sm pg-need-match" id="heroListen" data-pg="listen">들어보기</button>
+              <button class="btn btn-ghost btn-sm" data-pg="reset">처음으로</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top: var(--sp7)">
+      <div class="section-head">
+        <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>처음이라면 여기부터</h2>
+        <span class="desc">4단계만 따라오면 첫 곡까지!</span>
+      </div>
+      <div class="curated-grid" id="curatedGrid"></div>
+      <div class="resume-strip" id="resumeStrip" hidden>
+        <div class="txt" id="resumeText"></div>
+        <button class="btn btn-primary btn-sm" id="resumeBtn" data-resume="">이어서 하기</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 준비하기 ============ -->
+  <section class="section" id="prep" aria-label="준비하기">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>준비하기</h2>
+      <span class="desc">소리 내기 전, 몸과 입과 손가락 준비</span>
+    </div>
+    <p class="section-sub">좋은 소리의 비밀은 운지보다 먼저 와요. 다섯 가지만 익히면 준비 끝!
+      카드를 눌러 자세한 방법을 확인하고, 다 익혔으면 체크해 보세요.</p>
+    <div class="prep-grid" id="prepGrid"></div>
+  </section>
+
+  <!-- ============ 운지 배우기 ============ -->
+  <section class="section" id="learn" aria-label="운지 배우기">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>운지 배우기</h2>
+      <span class="desc">7개 세트 · 쉬운 것부터 차근차근</span>
+    </div>
+    <p class="section-sub">왼손 다섯 음부터 아주 높은 레까지, 학교에서 배우는 순서 그대로예요.
+      카드의 <b>들어보기</b>로 소리를 확인하고, 세트를 다 익히면 <b>완료</b>를 눌러 진도를 채워요.</p>
+    <div id="learnSets"></div>
+  </section>
+
+  <!-- ============ 운지표 ============ -->
+  <section class="section" id="chart" aria-label="운지표">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>운지표</h2>
+      <span class="desc">전체 26개 음 — 검색하고, 거르고, 모아 보세요</span>
+    </div>
+    <div class="gallery-tools">
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input type="search" class="search-input" id="chartSearch" placeholder="음 이름으로 검색 (예: 솔, F5, 파샵)" aria-label="운지표에서 음 검색">
+          <button class="search-clear" id="chartSearchClear" aria-label="검색어 지우기">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <span class="result-count" id="chartCount"></span>
+        <div class="view-toggle" id="chartView" role="group" aria-label="보기 방식">
+          <button data-view="grid" aria-pressed="true" aria-label="갤러리로 보기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>
+          </button>
+          <button data-view="list" aria-pressed="false" aria-label="목록으로 보기">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="5" cy="6" r="1.4" fill="currentColor" stroke="none"/><circle cx="5" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="5" cy="18" r="1.4" fill="currentColor" stroke="none"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="filter-row" id="chartFilters" role="group" aria-label="필터">
+        <button class="filter-chip" data-filter="oct:낮은음">낮은음</button>
+        <button class="filter-chip" data-filter="oct:높은음">높은음</button>
+        <button class="filter-chip" data-filter="oct:사이음">사이음 ♯♭</button>
+        <span class="divider" aria-hidden="true"></span>
+        <button class="filter-chip" data-filter="hand:left">왼손만</button>
+        <button class="filter-chip" data-filter="hand:both">양손</button>
+        <span class="divider" aria-hidden="true"></span>
+        <button class="filter-chip" data-filter="diff:입문">입문</button>
+        <button class="filter-chip" data-filter="diff:기초">기초</button>
+        <button class="filter-chip" data-filter="diff:도전">도전</button>
+        <span class="divider" aria-hidden="true"></span>
+        <button class="filter-chip" data-filter="fav:1">⭐ 즐겨찾기만</button>
+      </div>
+    </div>
+    <div id="chartBody"></div>
+  </section>
+
+  <!-- ============ 운지 놀이터 ============ -->
+  <section class="section" id="playground" aria-label="운지 놀이터">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>운지 놀이터</h2>
+      <span class="desc">마음대로 막아 보세요 — 무슨 음인지 알려줄게요</span>
+    </div>
+    <p class="section-sub">정답이 없는 실험실이에요. 구멍을 이리저리 막아 보고,
+      어떤 음이 되는지 찾아 보세요. <b>뒤 구멍과 6·7번</b>은 누를 때마다 <b>막기 → 반만 → 열기</b>로 바뀌어요.</p>
+    <div class="play-layout" id="labPlayground">
+      <div class="card play-stage">
+        <div class="pg-svg"></div>
+      </div>
+      <div class="card play-info">
+        <div class="big-name note-name" aria-live="polite">솔</div>
+        <div class="en note-en">G5</div>
+        <p class="desc guide"></p>
+        <div class="playground-actions" style="justify-content:flex-start">
+          <button class="btn btn-primary pg-need-match" data-pg="listen">들어보기</button>
+          <button class="btn btn-ghost pg-need-match" data-pg="learn">이 음 자세히</button>
+          <button class="btn btn-ghost" data-pg="reset">솔로 되돌리기</button>
+        </div>
+        <p class="near">💡 <b>힌트</b> — 왼손은 <b style="color:var(--left)">파란 구멍</b>(뒤·1·2·3번),
+          오른손은 <b style="color:var(--right)">빨간 구멍</b>(4·5·6·7번)을 맡아요.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 연습하기 ============ -->
+  <section class="section" id="practice" aria-label="연습하기">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>연습하기</h2>
+      <span class="desc">퀴즈로 다지고, 노래로 완성!</span>
+    </div>
+    <div class="practice-tabs" id="practiceTabs" role="group" aria-label="연습 종류">
+      <button class="filter-chip" data-tab="quiz" aria-pressed="true">🎯 운지 퀴즈</button>
+      <button class="filter-chip" data-tab="songs" aria-pressed="false">🎵 따라 연주</button>
+    </div>
+    <div class="card quiz-panel" id="quizPanel"></div>
+    <div id="songsPanel" hidden>
+      <div class="song-grid" id="songGrid"></div>
+      <div class="card player" id="playerWrap" hidden>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h3 id="songTitle" style="font-size:18px;font-weight:800"></h3>
+          <span class="chip">한 음씩 눌러도 돼요</span>
+        </div>
+        <div class="player-controls">
+          <button class="btn btn-primary" id="songPlay" aria-label="재생"></button>
+          <button class="btn btn-ghost btn-sm" id="songPrev" aria-label="앞 음으로">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M19 4.8v14.4c0 .8-.9 1.3-1.6.9l-11-7.2a1 1 0 0 1 0-1.7l11-7.2c.7-.5 1.6 0 1.6.8Z"/><rect x="4" y="4" width="2.6" height="16" rx="1"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="songNext" aria-label="다음 음으로">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M5 4.8v14.4c0 .8.9 1.3 1.6.9l11-7.2a1 1 0 0 0 0-1.7l-11-7.2c-.7-.5-1.6 0-1.6.8Z"/><rect x="17.4" y="4" width="2.6" height="16" rx="1"/></svg>
+          </button>
+          <button class="btn btn-ghost btn-sm" id="songRestart" aria-label="처음부터">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5v5h5"/><path d="M4.6 10A8 8 0 1 1 4 14"/></svg>
+          </button>
+          <div class="tempo-wrap">
+            <label for="songTempo">속도</label>
+            <input type="range" id="songTempo" min="60" max="140" value="100" step="5">
+            <output id="tempoOut" for="songTempo">100%</output>
+          </div>
+        </div>
+        <div class="note-ribbon" id="noteRibbon" aria-label="음 순서"></div>
+        <div class="player-stage" id="songStage"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 보관함 ============ -->
+  <section class="section" id="library" aria-label="보관함">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>보관함</h2>
+      <span class="desc">내가 모은 음, 내가 걸어온 길</span>
+    </div>
+    <div class="library-grid">
+      <div class="card lib-panel">
+        <h3>⭐ 즐겨찾기 <span class="cnt" id="favCount">0개</span></h3>
+        <div class="lib-items" id="favItems"></div>
+      </div>
+      <div class="card lib-panel">
+        <h3>🕐 최근 본 항목</h3>
+        <div class="lib-items" id="recentItems"></div>
+      </div>
+      <div class="card lib-panel">
+        <h3>📦 나만의 모음</h3>
+        <div id="collectionList" style="display:flex;flex-direction:column;gap:10px"></div>
+        <div class="new-collection">
+          <input type="text" id="newColName" placeholder="새 모음 이름 (예: 시험 범위)" maxlength="20" aria-label="새 모음 이름">
+          <button class="btn btn-soft btn-sm" id="newColBtn">만들기</button>
+        </div>
+      </div>
+      <div class="card lib-panel">
+        <h3>🌱 나의 진도</h3>
+        <div class="progress-overview" id="progressBars"></div>
+        <h3 style="margin-top:8px">🏆 퀴즈 최고 기록</h3>
+        <div class="lib-items" id="quizBestItems"></div>
+      </div>
+      <div class="card lib-panel" style="grid-column:1/-1">
+        <h3>💾 내 기록 관리</h3>
+        <p style="font-size:13.5px;color:var(--ink-soft)">모든 기록은 <b>이 기기에만</b> 저장돼요(서버 전송 없음).
+          다른 기기로 옮기려면 파일로 내보내세요.</p>
+        <div class="data-actions">
+          <button class="btn btn-ghost btn-sm" id="exportBtn">파일로 내보내기</button>
+          <button class="btn btn-ghost btn-sm" id="importBtn">파일 가져오기</button>
+          <button class="btn btn-ghost btn-sm" id="resetBtn" style="color:var(--right);border-color:var(--right-line)">전체 초기화</button>
+          <input type="file" id="importFile" accept="application/json,.json" class="sr-only" aria-label="기록 파일 선택">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 가이드 ============ -->
+  <section class="section" id="guide" aria-label="가이드">
+    <div class="section-head">
+      <h2><span class="marker" aria-hidden="true"><i></i><i></i><i></i></span>가이드</h2>
+      <span class="desc">알아 두면 좋은 것들</span>
+    </div>
+    <div class="guide-grid">
+      <div class="card guide-card">
+        <h3>내 리코더는 독일식? 바로크식?</h3>
+        <div class="gb-compare">
+          <figure>
+            <svg viewBox="0 0 60 120" width="56" aria-label="독일식: 4번 구멍이 5번보다 커요">
+              <rect x="22" y="4" width="16" height="112" rx="8" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="2"/>
+              <circle cx="30" cy="30" r="5" fill="var(--hole-open)" stroke="var(--hole-line)" stroke-width="1.6"/>
+              <circle cx="30" cy="55" r="6.5" fill="var(--left-soft)" stroke="var(--left)" stroke-width="2"/>
+              <circle cx="30" cy="80" r="4" fill="var(--hole-open)" stroke="var(--hole-line)" stroke-width="1.6"/>
+              <text x="44" y="59" font-size="10" fill="var(--ink-soft)">4</text>
+              <text x="44" y="84" font-size="10" fill="var(--ink-soft)">5</text>
+            </svg>
+            <figcaption>독일식 G<br><b>4번이 더 커요</b></figcaption>
+          </figure>
+          <figure>
+            <svg viewBox="0 0 60 120" width="56" aria-label="바로크식: 5번 구멍이 4번보다 커요">
+              <rect x="22" y="4" width="16" height="112" rx="8" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="2"/>
+              <circle cx="30" cy="30" r="5" fill="var(--hole-open)" stroke="var(--hole-line)" stroke-width="1.6"/>
+              <circle cx="30" cy="55" r="4" fill="var(--right-soft)" stroke="var(--right)" stroke-width="2"/>
+              <circle cx="30" cy="80" r="6.5" fill="var(--hole-open)" stroke="var(--hole-line)" stroke-width="1.6"/>
+              <text x="44" y="59" font-size="10" fill="var(--ink-soft)">4</text>
+              <text x="44" y="84" font-size="10" fill="var(--ink-soft)">5</text>
+            </svg>
+            <figcaption>바로크식 B<br><b>5번이 더 커요</b></figcaption>
+          </figure>
+        </div>
+        <ul>
+          <li>리코더 몸통의 <b>4번과 5번 구멍 크기</b>를 비교해 보세요.</li>
+          <li>우리나라 학교에서는 <b>독일식(G)</b>을 주로 써요. 머리 부분에 G 또는 B가 적혀 있기도 해요.</li>
+          <li>위쪽의 <b>독일식/바로크식 버튼</b>으로 내 리코더에 맞는 운지를 골라요. 파·파♯ 등 일부 운지가 달라져요.</li>
+        </ul>
+      </div>
+      <div class="card guide-card">
+        <h3>리코더 아껴 쓰기</h3>
+        <ul>
+          <li>연주가 끝나면 관 속 물기를 <b>거즈나 면봉(클리너)</b>으로 닦아요.</li>
+          <li>입에 닿는 악기이니 <b>나만 사용하고</b>, 친구와 바꿔 불지 않아요.</li>
+          <li>뜨거운 곳(여름철 차 안, 난로 옆)에 두면 휘어질 수 있어요.</li>
+          <li>조립할 때는 <b>비틀면서 천천히</b> — 힘으로 밀어 넣지 않아요.</li>
+        </ul>
+      </div>
+      <div class="card guide-card">
+        <h3>이 앱 100% 활용하기</h3>
+        <ul>
+          <li><b>Ctrl + K</b> — 어디서든 검색·빠른 이동 (모바일은 위의 🔍)</li>
+          <li><b>운지 놀이터</b> — 구멍을 눌러 음 찾기, 뒤·6·7번은 반만 막기 가능</li>
+          <li><b>들어보기</b> — 모든 음 카드에서 실제 높이의 소리 재생</li>
+          <li><b>⭐ 별</b> — 즐겨찾기에 모아 시험 전에 몰아 보기</li>
+          <li>모든 기록은 이 기기에만 저장돼요 (로그인 없음)</li>
+        </ul>
+        <button class="btn btn-ghost btn-sm" id="tourReplay" style="align-self:flex-start">처음 안내 다시 보기</button>
+      </div>
+    </div>
+    <footer class="footer">
+      <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>리코더 교실 — 보고, 만지고, 들으면서 배워요.</span>
+      <span>운지와 연주법은 초등 음악 교과 자료를 바탕으로 했어요.</span>
+    </footer>
+  </section>
+</main>
+
+<!-- ============ 모바일 하단 탭 ============ -->
+<nav class="tabbar" aria-label="빠른 이동">
+  <a href="#home" data-spy="home" class="active">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m4 11 8-7 8 7v8.5a1.5 1.5 0 0 1-1.5 1.5h-4v-6h-5v6h-4A1.5 1.5 0 0 1 4 19.5V11Z"/></svg>홈</a>
+  <a href="#learn" data-spy="learn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M5 4.5A1.5 1.5 0 0 1 6.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A1.5 1.5 0 0 1 5 18.5v-14Z"/><path d="M5 17h14M9 3v13"/></svg>배우기</a>
+  <a href="#chart" data-spy="chart">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="9" y="2.5" width="6" height="19" rx="3"/><circle cx="12" cy="8" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="12.5" r="1.3" fill="currentColor" stroke="none"/><circle cx="12" cy="17" r="1.3" fill="currentColor" stroke="none"/></svg>운지표</a>
+  <a href="#practice" data-spy="practice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M9 18.5V6l10-2v12.5"/><circle cx="6.5" cy="18.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/></svg>연습</a>
+  <a href="#library" data-spy="library">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5 12 4l8 4.5v7L12 20l-8-4.5v-7Z"/><path d="M4 8.5 12 13l8-4.5M12 13v7"/></svg>보관함</a>
+</nav>
+
+<!-- ============ 드로어 (모바일 전체 메뉴) ============ -->
+<div class="palette-backdrop" id="drawerBackdrop"></div>
+<nav class="drawer" id="drawer" aria-label="전체 메뉴">
+  <div class="drawer-head">
+    <span style="font-family:var(--font-display);font-size:19px">리코더 교실</span>
+    <button class="icon-btn" id="drawerClose" aria-label="메뉴 닫기" style="margin-left:auto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <a class="nav-link" href="#home">홈</a>
+  <a class="nav-link" href="#prep">준비하기</a>
+  <a class="nav-link" href="#learn">운지 배우기</a>
+  <a class="nav-link" href="#chart">운지표</a>
+  <a class="nav-link" href="#playground">운지 놀이터</a>
+  <a class="nav-link" href="#practice">연습하기</a>
+  <a class="nav-link" href="#library">보관함</a>
+  <a class="nav-link" href="#guide">가이드</a>
+  <div class="drawer-controls">
+    <div class="row"><span class="lbl">운지 체계</span>
+      <div class="sys-toggle" role="group" aria-label="운지 체계 고르기">
+        <button data-sys="G" aria-pressed="true">독일식</button>
+        <button data-sys="B" aria-pressed="false">바로크식</button>
+      </div>
+    </div>
+    <div class="row"><span class="lbl">소리</span><button id="drawerSound" class="icon-btn" aria-pressed="true" aria-label="소리 끄기"></button></div>
+    <div class="row"><span class="lbl">모션 줄이기</span><button id="drawerMotion" class="icon-btn" aria-pressed="false" aria-label="모션 줄이기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 12c3-7 7 7 9 0s7-7 9 0"/></svg></button></div>
+    <div class="row"><span class="lbl">테마</span><button id="drawerTheme" class="icon-btn" aria-label="테마 바꾸기"></button></div>
+  </div>
+</nav>
+
+<!-- ============ 커맨드 팔레트 ============ -->
+<div class="palette-backdrop" id="paletteBackdrop"></div>
+<div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="검색과 빠른 이동">
+  <div class="palette-input-row">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input type="text" class="palette-input" id="paletteInput" placeholder="음, 노래, 화면 이름을 입력하세요…"
+           role="combobox" aria-expanded="true" aria-controls="paletteList" aria-autocomplete="list" autocomplete="off">
+  </div>
+  <div class="palette-list" id="paletteList" role="listbox" aria-label="검색 결과"></div>
+  <div class="palette-foot">
+    <span><kbd>↑↓</kbd> 이동</span><span><kbd>Enter</kbd> 열기</span><span><kbd>Esc</kbd> 닫기</span>
+  </div>
+</div>
+
+<!-- ============ 음 상세 모달 ============ -->
+<div class="modal-backdrop" id="modalBackdrop"></div>
+<div class="note-modal" id="noteModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="nm-head">
+    <span class="nm-title" id="modalTitle"></span>
+    <span class="nm-en" id="modalEn"></span>
+    <button class="star" id="modalStar" data-star="" aria-pressed="false" aria-label="즐겨찾기에 담기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.8-4.5 4.2 1.1 6L12 16.7 6.6 19.6l1.1-6L3.2 9.4l6.1-.8L12 3Z"/></svg>
+    </button>
+    <button class="icon-btn" id="modalClose" aria-label="닫기">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="nm-body" id="modalBody"></div>
+  <div class="nm-actions">
+    <button class="btn btn-primary" id="modalPlay" data-play="">
+      <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M7 4.8v14.4c0 .8.9 1.3 1.6.9l11-7.2a1 1 0 0 0 0-1.7l-11-7.2c-.7-.5-1.6 0-1.6.8Z"/></svg>
+      들어보기</button>
+    <div class="add-menu">
+      <button class="btn btn-ghost" id="addMenuBtn" aria-haspopup="true">📦 모음에 담기</button>
+      <div class="add-menu-list" id="addMenuList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 투어 ============ -->
+<div class="tour-backdrop" id="tourBackdrop"></div>
+<div class="tour-card" id="tourCard" role="dialog" aria-modal="true" aria-labelledby="tourTitle">
+  <span class="step-no" id="tourStepNo"></span>
+  <span class="t" id="tourTitle"></span>
+  <p class="d" id="tourDesc"></p>
+  <div class="foot">
+    <button class="skip" id="tourSkip">건너뛰기</button>
+    <button class="btn btn-primary btn-sm" id="tourNext">다음</button>
+  </div>
+</div>
+
+<!-- 토스트 + 스크린리더 알림 -->
+<div class="toast-region" id="toastRegion" aria-live="polite"></div>
+<div class="sr-only" id="srLive" aria-live="polite"></div>
+
+<noscript>
+  <div style="padding:80px 20px;text-align:center;font-family:sans-serif">
+    리코더 교실은 자바스크립트가 필요해요. 브라우저 설정에서 자바스크립트를 켜 주세요.
+  </div>
+</noscript>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="views.js"></script>
+</body>
+</html>
