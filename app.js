@@ -271,7 +271,7 @@ const ICONS = {
    opts: { width, interactive, labels, state(놀이터용 현재 상태), idPrefix } */
 function recorderSVG(noteOrState, opts = {}) {
   const W = opts.width || 96;
-  const H = Math.round(W * 4.2);
+  const H = Math.round(W * (470 / 120));
   let t, h;
   if (noteOrState && noteOrState.f !== undefined) { /* note 객체 */
     const f = fingeringOf(noteOrState, opts.system);
@@ -280,20 +280,21 @@ function recorderSVG(noteOrState, opts = {}) {
     t = noteOrState.t; h = [...noteOrState.h];
   }
   const cx = 60;
-  const holeY = [150, 184, 218, 262, 296, 330, 366];
+  const holeY = [158, 192, 226, 270, 304, 338, 372];
   const colors = i => (HOLE_HAND[i] === 'left'
     ? 'var(--left)' : 'var(--right)');
   const inter = !!opts.interactive;
   const lab = opts.labels !== false;
+  const uid = String(opts.idPrefix || 'main').replace(/[^A-Za-z0-9_-]/g, '');
 
   /* 구멍 그리기 */
   function holeSVG(i) {
     const y = holeY[i];
     const v = h[i];
     const isDouble = (i === 5 || i === 6); /* 6·7번은 두 개짜리 구멍 */
-    const fillMain = v >= 0.5 ? colors(i) : 'var(--hole-open)';
-    const fillSub  = v === 1 ? colors(i) : 'var(--hole-open)';
-    const strokeC  = v > 0 ? colors(i) : 'var(--hole-line)';
+    const fillMain = v >= 0.5 ? colors(i) : 'var(--recorder-bore)';
+    const fillSub  = v === 1 ? colors(i) : 'var(--recorder-bore)';
+    const strokeC  = v > 0 ? colors(i) : 'var(--recorder-rim)';
     const handKo = HOLE_HAND[i] === 'left' ? '왼손' : '오른손';
     const stateKo = v === 1 ? '막음' : (v === 0.5 ? '반만 막음' : '열림');
     const a11y = `${i + 1}번 구멍 (${handKo}) — ${stateKo}`;
@@ -303,59 +304,104 @@ function recorderSVG(noteOrState, opts = {}) {
     let g = `<g${interAttrs} aria-label="${a11y}">`;
     if (inter) g = `<g${interAttrs}><title>${a11y}</title>`;
     /* 터치하기 쉽게 — 보이지 않는 히트 영역 */
-    if (inter) g += `<circle cx="${cx}" cy="${y}" r="16" fill="transparent" stroke="none"/>`;
+    if (inter) g += `<circle cx="${cx}" cy="${y}" r="19" fill="transparent" stroke="none"/>`;
     if (isDouble) {
-      g += `<circle cx="${cx - 4}" cy="${y}" r="8.6" fill="${fillMain}" stroke="${strokeC}" stroke-width="2"/>`;
-      g += `<circle cx="${cx + 11}" cy="${y + 7}" r="5" fill="${fillSub}" stroke="${strokeC}" stroke-width="1.8"/>`;
+      g += `<ellipse cx="${cx - 4}" cy="${y + 1}" rx="10.8" ry="9.8" fill="var(--recorder-hole-seat)" opacity=".55"/>`;
+      g += `<ellipse cx="${cx + 11}" cy="${y + 7}" rx="6.8" ry="6.1" fill="var(--recorder-hole-seat)" opacity=".55"/>`;
+      g += `<circle cx="${cx - 4}" cy="${y}" r="8.7" fill="${fillMain}" stroke="${strokeC}" stroke-width="2.1"/>`;
+      g += `<circle cx="${cx + 11}" cy="${y + 7}" r="5.3" fill="${fillSub}" stroke="${strokeC}" stroke-width="1.9"/>`;
+      if (v > 0) g += `<circle cx="${cx - 7.2}" cy="${y - 3.4}" r="2" fill="var(--on-signal)" opacity=".35"/>`;
     } else {
-      g += `<circle cx="${cx}" cy="${y}" r="9.6" fill="${fillMain}" stroke="${strokeC}" stroke-width="2"/>`;
+      g += `<ellipse cx="${cx}" cy="${y + 1}" rx="11.8" ry="10.8" fill="var(--recorder-hole-seat)" opacity=".55"/>`;
+      if (v === 0.5) {
+        g += `<circle cx="${cx}" cy="${y}" r="9.6" fill="var(--recorder-bore)" stroke="${strokeC}" stroke-width="2.1"/>`;
+        g += `<path d="M${cx - 9.6} ${y}a9.6 9.6 0 0 0 19.2 0Z" fill="${colors(i)}"/>`;
+      } else {
+        g += `<circle cx="${cx}" cy="${y}" r="9.6" fill="${fillMain}" stroke="${strokeC}" stroke-width="2.1"/>`;
+      }
+      if (v > 0) g += `<circle cx="${cx - 3.5}" cy="${y - 3.7}" r="2.2" fill="var(--on-signal)" opacity=".35"/>`;
     }
-    if (lab) g += `<text x="${cx + 24}" y="${y + 4}" font-size="10.5" fill="var(--ink-faint)" text-anchor="start">${i + 1}</text>`;
+    if (lab) g += `<text x="${cx + 25}" y="${y + 4}" font-size="10.5" fill="var(--ink-faint)" text-anchor="start">${i + 1}</text>`;
     g += '</g>';
     return g;
   }
 
   /* 엄지(뒤) 구멍 */
-  const tFill = t >= 0.5 ? 'var(--left)' : 'var(--hole-open)';
-  const tStroke = t > 0 ? 'var(--left)' : 'var(--hole-line)';
+  const tFill = t >= 0.5 ? 'var(--left)' : 'var(--recorder-bore)';
+  const tStroke = t > 0 ? 'var(--left)' : 'var(--recorder-rim)';
   const tState = t === 1 ? '막음' : (t === 0.5 ? '반만 막음(핀치)' : '열림');
   const tInter = inter
     ? ` role="button" tabindex="0" data-hole="t" aria-pressed="${t > 0}" aria-label="뒤 구멍 (왼손 엄지) — ${tState} · 누를 때마다 막기, 반만, 열기 순서로 바뀜" class="hole" style="cursor:pointer"`
     : ' class="hole"';
   let thumb = `<g${tInter} aria-label="뒤 구멍 (왼손 엄지) — ${tState}">`;
   if (inter) thumb = `<g${tInter}><title>뒤 구멍 (왼손 엄지) — ${tState} · 누를 때마다 막기→반만→열기</title>
-    <circle cx="24" cy="124" r="16" fill="transparent" stroke="none"/>`;
+    <circle cx="26" cy="132" r="18" fill="transparent" stroke="none"/>`;
   if (t === 0.5) {
-    thumb += `<circle cx="24" cy="124" r="10" fill="var(--hole-open)" stroke="var(--left)" stroke-width="2"/>
-              <path d="M14 124a10 10 0 0 0 20 0Z" fill="var(--left)"/>`;
+    thumb += `<path d="M36 120 C30 116 21 118 17 125 C13 134 19 144 29 144 C36 144 41 139 42 132" fill="var(--recorder-hole-seat)" opacity=".48"/>
+              <circle cx="26" cy="132" r="10" fill="var(--recorder-bore)" stroke="var(--left)" stroke-width="2.1"/>
+              <path d="M16 132a10 10 0 0 0 20 0Z" fill="var(--left)"/>`;
   } else {
-    thumb += `<circle cx="24" cy="124" r="10" fill="${tFill}" stroke="${tStroke}" stroke-width="2"/>`;
+    thumb += `<path d="M36 120 C30 116 21 118 17 125 C13 134 19 144 29 144 C36 144 41 139 42 132" fill="var(--recorder-hole-seat)" opacity=".48"/>
+              <circle cx="26" cy="132" r="10" fill="${tFill}" stroke="${tStroke}" stroke-width="2.1"/>`;
+    if (t > 0) thumb += `<circle cx="22.5" cy="128.3" r="2.2" fill="var(--on-signal)" opacity=".35"/>`;
   }
-  if (lab) thumb += `<text x="24" y="105" font-size="10.5" fill="var(--ink-faint)" text-anchor="middle">뒤</text>`;
+  if (lab) thumb += `<text x="26" y="113" font-size="10.5" fill="var(--ink-faint)" text-anchor="middle">뒤</text>`;
   thumb += '</g>';
 
   return `
   <svg class="recorder-svg${inter ? ' interactive' : ''}" viewBox="0 0 120 470" width="${W}" height="${H}"
        role="img" aria-label="리코더 운지 그림" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <linearGradient id="rcdBody${opts.idPrefix || ''}" x1="0" y1="0" x2="1" y2="0">
-        <stop offset="0" stop-color="var(--surface-2)"/>
-        <stop offset=".5" stop-color="var(--surface)"/>
-        <stop offset="1" stop-color="var(--surface-2)"/>
+      <linearGradient id="rcdBody${uid}" x1="34" y1="0" x2="86" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="var(--recorder-body-shadow)"/>
+        <stop offset=".18" stop-color="var(--recorder-body)"/>
+        <stop offset=".48" stop-color="var(--recorder-body-light)"/>
+        <stop offset=".69" stop-color="var(--recorder-body)"/>
+        <stop offset="1" stop-color="var(--recorder-body-deep)"/>
       </linearGradient>
+      <linearGradient id="rcdJoint${uid}" x1="34" y1="0" x2="86" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="var(--recorder-rim)"/>
+        <stop offset=".16" stop-color="var(--recorder-joint-shadow)"/>
+        <stop offset=".5" stop-color="var(--recorder-joint-light)"/>
+        <stop offset=".84" stop-color="var(--recorder-joint-shadow)"/>
+        <stop offset="1" stop-color="var(--recorder-rim)"/>
+      </linearGradient>
+      <filter id="rcdShadow${uid}" x="-18%" y="-4%" width="136%" height="112%">
+        <feDropShadow dx="4" dy="4" stdDeviation="2.2" flood-color="var(--recorder-cast-shadow)" flood-opacity=".38"/>
+      </filter>
     </defs>
-    <!-- 머리: 취구 -->
-    <path d="M45 14 Q60 4 75 14 L72 52 Q60 58 48 52 Z" fill="url(#rcdBody${opts.idPrefix || ''})" stroke="var(--line-strong)" stroke-width="2"/>
-    <rect x="54" y="22" width="12" height="5" rx="2.5" fill="var(--ink-faint)" opacity=".55"/>
-    <!-- 머리 관 -->
-    <path d="M48 52 L46 96 Q60 102 74 96 L72 52 Q60 58 48 52 Z" fill="url(#rcdBody${opts.idPrefix || ''})" stroke="var(--line-strong)" stroke-width="2"/>
-    <rect x="43" y="96" width="34" height="9" rx="4.5" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="2"/>
-    <!-- 몸통 -->
-    <path d="M46 105 L44 384 Q60 391 76 384 L74 105 Z" fill="url(#rcdBody${opts.idPrefix || ''})" stroke="var(--line-strong)" stroke-width="2"/>
-    <!-- 발 관 -->
-    <rect x="41" y="384" width="38" height="9" rx="4.5" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="2"/>
-    <path d="M44 393 L40 440 Q60 449 80 440 L76 393 Z" fill="url(#rcdBody${opts.idPrefix || ''})" stroke="var(--line-strong)" stroke-width="2"/>
-    <ellipse cx="60" cy="443" rx="21" ry="6" fill="var(--surface-2)" stroke="var(--line-strong)" stroke-width="2"/>
+    <g class="recorder-instrument" filter="url(#rcdShadow${uid})">
+      <!-- 머리: 부리형 취구와 윈드웨이 -->
+      <path class="rcd-outline" d="M45 16 C50 8 60 5 70 8 C77 11 81 18 78 25 C74 35 76 43 80 52 C78 62 72 68 61 68 C51 68 43 62 42 52 L45 16Z" fill="url(#rcdBody${uid})" stroke-width="4"/>
+      <path d="M52 19 C58 14 68 15 74 21 L72 50 C68 45 57 41 47 45 L49 27 C50 24 51 21 52 19Z" fill="var(--recorder-body-light)" opacity=".5"/>
+      <path d="M50 45 C58 42 69 45 75 52" fill="none" stroke="var(--recorder-rim)" stroke-width="3.2" stroke-linecap="round"/>
+      <path d="M51 31 C57 29 66 30 72 34" fill="none" stroke="var(--recorder-bore)" stroke-width="4" stroke-linecap="round" opacity=".82"/>
+      <!-- 라비움 창 -->
+      <path class="rcd-outline" d="M48 63 L73 67 L67 91 L43 86 Z" fill="var(--recorder-window)" stroke-width="3"/>
+      <path d="M52 69 L67 72 L62 83 L48 80 Z" fill="var(--recorder-body-light)" opacity=".88"/>
+      <path d="M54 71 L67 73" stroke="var(--recorder-rim)" stroke-width="2" stroke-linecap="round"/>
+      <!-- 머리 관 -->
+      <path class="rcd-outline" d="M42 52 C49 63 72 64 80 52 L74 116 C72 128 49 128 46 116 Z" fill="url(#rcdBody${uid})" stroke-width="4"/>
+      <path d="M64 68 C61 87 59 104 57 121" fill="none" stroke="var(--recorder-highlight)" stroke-width="7" stroke-linecap="round" opacity=".34"/>
+      <path class="rcd-detail" d="M45 98 C54 104 68 104 75 98"/>
+
+      <!-- 헤드-바디 연결부 -->
+      <path class="rcd-outline" d="M39 113 C49 120 72 120 81 113 L82 124 C72 132 49 132 38 124 Z" fill="url(#rcdJoint${uid})" stroke-width="4"/>
+      <path class="rcd-detail" d="M40 124 C50 131 71 131 80 124"/>
+
+      <!-- 몸통 -->
+      <path class="rcd-outline" d="M43 126 C48 136 72 136 77 126 L79 390 C71 397 49 397 41 390 Z" fill="url(#rcdBody${uid})" stroke-width="4"/>
+      <path d="M63 139 C61 204 59 280 56 382" fill="none" stroke="var(--recorder-highlight)" stroke-width="8" stroke-linecap="round" opacity=".36"/>
+      <path d="M74 138 C73 216 73 308 75 384" fill="none" stroke="var(--recorder-side-shade)" stroke-width="4" stroke-linecap="round" opacity=".3"/>
+
+      <!-- 발 관과 벨 -->
+      <path class="rcd-outline" d="M38 386 C49 395 71 395 82 386 L83 399 C73 407 47 407 37 399 Z" fill="url(#rcdJoint${uid})" stroke-width="4"/>
+      <path class="rcd-outline" d="M41 399 C49 405 71 405 79 399 L75 432 C70 442 50 442 45 432 Z" fill="url(#rcdBody${uid})" stroke-width="4"/>
+      <path class="rcd-outline" d="M35 427 C44 437 76 437 85 427 C83 444 73 457 60 459 C47 457 37 444 35 427 Z" fill="url(#rcdJoint${uid})" stroke-width="4"/>
+      <ellipse cx="60" cy="445" rx="23" ry="9" fill="var(--recorder-joint-light)" stroke="var(--recorder-rim)" stroke-width="4"/>
+      <ellipse cx="60" cy="447" rx="14" ry="5.5" fill="var(--recorder-bore)" opacity=".95"/>
+      <path d="M52 433 C57 436 65 436 70 433" fill="none" stroke="var(--recorder-highlight)" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+    </g>
     ${thumb}
     ${h.map((v, i) => holeSVG(i)).join('')}
   </svg>`;

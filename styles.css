@@ -30,6 +30,19 @@
   --ok-soft: #E2F4EA;
   --hole-open: #FFFFFF;
   --hole-line: #9AA5BC;
+  --recorder-body-light: #FFF8D9;
+  --recorder-body: #F3E9B9;
+  --recorder-body-shadow: #DCCB8C;
+  --recorder-body-deep: #C7A861;
+  --recorder-rim: #6F390A;
+  --recorder-joint-light: #F8EDBD;
+  --recorder-joint-shadow: #C99D48;
+  --recorder-bore: #3B1D08;
+  --recorder-window: #4B2508;
+  --recorder-hole-seat: rgba(76, 38, 10, .24);
+  --recorder-highlight: rgba(255, 255, 255, .74);
+  --recorder-side-shade: rgba(89, 46, 12, .5);
+  --recorder-cast-shadow: rgba(69, 45, 16, .45);
   /* Type */
   --font-display: 'Jua', 'BM Jua', 'Pretendard Variable', Pretendard, -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   --font-body: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', sans-serif;
@@ -75,6 +88,19 @@
   --ok-soft: #1C3A2B;
   --hole-open: #1A2130;
   --hole-line: #75809A;
+  --recorder-body-light: #F5E8B5;
+  --recorder-body: #D8C076;
+  --recorder-body-shadow: #9C7132;
+  --recorder-body-deep: #6F4316;
+  --recorder-rim: #A96824;
+  --recorder-joint-light: #E6C574;
+  --recorder-joint-shadow: #8A551E;
+  --recorder-bore: #160C06;
+  --recorder-window: #1D1008;
+  --recorder-hole-seat: rgba(14, 8, 4, .42);
+  --recorder-highlight: rgba(255, 246, 204, .46);
+  --recorder-side-shade: rgba(26, 13, 5, .62);
+  --recorder-cast-shadow: rgba(0, 0, 0, .66);
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .35);
   --shadow-2: 0 4px 10px rgba(0, 0, 0, .4), 0 16px 40px rgba(0, 0, 0, .5);
 }
@@ -364,12 +390,28 @@ dialog { padding: 0; border: 0; background: none; max-width: none; max-height: n
 .playground-actions { display: flex; gap: var(--sp2); justify-content: center; margin-top: var(--sp4); flex-wrap: wrap; }
 
 /* ---------- 리코더 SVG ---------- */
+.recorder-svg { overflow: visible; }
+.recorder-svg .recorder-instrument { pointer-events: none; }
+.recorder-svg .rcd-outline {
+  stroke: var(--recorder-rim);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.recorder-svg .rcd-detail {
+  fill: none;
+  stroke: var(--recorder-rim);
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  opacity: .72;
+}
 .recorder-svg .hole {
   cursor: default;
+  transform-box: fill-box;
+  transform-origin: center;
   transition: fill var(--d1) var(--ease), stroke var(--d1) var(--ease), transform var(--d1) var(--ease);
 }
 .recorder-svg.interactive .hole { cursor: pointer; }
-.recorder-svg.interactive .hole:hover { transform: scale(1.12); }
+.recorder-svg.interactive .hole:hover { transform: scale(1.1); }
 .recorder-svg .hole:focus-visible { outline: 3px solid var(--left); outline-offset: 3px; border-radius: 50%; }
 .recorder-svg text { font-family: var(--font-body); font-weight: 700; }
 
