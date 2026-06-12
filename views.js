@@ -89,17 +89,20 @@ const Views = (() => {
     const pg = {
       state: { t: 1, h: [1, 1, 1, 0, 0, 0, 0] }, /* 시작: 솔 */
       lastMatch: 'G5',
+      activeFinger: null,
       render(userAction) {
         const focusHole = document.activeElement && root.contains(document.activeElement)
           ? document.activeElement.getAttribute('data-hole') : null;
         $('.pg-svg', root).innerHTML = recorderSVG(pg.state, {
           width: opts.width || 120, interactive: true, labels: true, idPrefix: rootId,
+          activeFinger: pg.activeFinger,
         });
         if (focusHole != null) {
           const el = $(`[data-hole="${focusHole}"]`, root);
           if (el) el.focus();
         }
         pg.match(userAction);
+        pg.activeFinger = null;
       },
       match(userAction) {
         const m = NOTES.find(n => {
@@ -152,7 +155,11 @@ const Views = (() => {
       if (!act) return;
       const kind = act.dataset.pg;
       if (kind === 'listen' && pg.lastMatch) playNote(pg.lastMatch, 0.9, root);
-      if (kind === 'reset') { pg.state = { t: 1, h: [1, 1, 1, 0, 0, 0, 0] }; pg.render(true); }
+      if (kind === 'reset') {
+        pg.state = { t: 1, h: [1, 1, 1, 0, 0, 0, 0] };
+        pg.activeFinger = 'all';
+        pg.render(true);
+      }
       if (kind === 'learn' && pg.lastMatch) openNoteModal(pg.lastMatch);
     });
     root.addEventListener('keydown', e => {
@@ -163,6 +170,7 @@ const Views = (() => {
       }
     });
     function toggleHole(which) {
+      pg.activeFinger = which;
       if (which === 't') {
         pg.state.t = pg.state.t === 1 ? 0.5 : (pg.state.t === 0.5 ? 0 : 1);
       } else {

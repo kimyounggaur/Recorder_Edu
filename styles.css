@@ -43,6 +43,11 @@
   --recorder-highlight: rgba(255, 255, 255, .74);
   --recorder-side-shade: rgba(89, 46, 12, .5);
   --recorder-cast-shadow: rgba(69, 45, 16, .45);
+  --finger-skin: #F0B186;
+  --finger-skin-light: #FFD0AF;
+  --finger-skin-shadow: #C77B52;
+  --finger-nail: #FFE2D6;
+  --finger-shadow: rgba(74, 36, 15, .34);
   /* Type */
   --font-display: 'Jua', 'BM Jua', 'Pretendard Variable', Pretendard, -apple-system, 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   --font-body: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont, 'Noto Sans KR', 'Malgun Gothic', 'Segoe UI', sans-serif;
@@ -101,6 +106,11 @@
   --recorder-highlight: rgba(255, 246, 204, .46);
   --recorder-side-shade: rgba(26, 13, 5, .62);
   --recorder-cast-shadow: rgba(0, 0, 0, .66);
+  --finger-skin: #D09166;
+  --finger-skin-light: #F3B88F;
+  --finger-skin-shadow: #8F5637;
+  --finger-nail: #F3C8B6;
+  --finger-shadow: rgba(0, 0, 0, .42);
   --shadow-1: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 14px rgba(0, 0, 0, .35);
   --shadow-2: 0 4px 10px rgba(0, 0, 0, .4), 0 16px 40px rgba(0, 0, 0, .5);
 }
@@ -413,7 +423,105 @@ dialog { padding: 0; border: 0; background: none; max-width: none; max-height: n
 .recorder-svg.interactive .hole { cursor: pointer; }
 .recorder-svg.interactive .hole:hover { transform: scale(1.1); }
 .recorder-svg .hole:focus-visible { outline: 3px solid var(--left); outline-offset: 3px; border-radius: 50%; }
+.recorder-svg .finger-layer,
+.recorder-svg .finger-anchor,
+.recorder-svg .finger {
+  pointer-events: none;
+}
+.recorder-svg .finger {
+  --finger-from-x: 18px;
+  --finger-from-y: -12px;
+  --finger-rest-x: 0px;
+  --finger-rest-y: 0px;
+  --finger-lift-rot: 8deg;
+  --finger-accent: var(--left);
+  opacity: 1;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.recorder-svg .finger-left { --finger-accent: var(--left); }
+.recorder-svg .finger-right { --finger-accent: var(--right); }
+.recorder-svg .finger.is-open {
+  opacity: 0;
+  transform: translate(var(--finger-from-x), var(--finger-from-y)) scale(.82) rotate(var(--finger-lift-rot));
+}
+.recorder-svg .finger.is-half {
+  opacity: .96;
+  transform: translate(var(--finger-rest-x), var(--finger-rest-y)) scale(.94);
+}
+.recorder-svg .finger.is-closed {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+.recorder-svg .finger.is-moving.is-closed { animation: finger-press 360ms var(--ease-bounce) both; }
+.recorder-svg .finger.is-moving.is-half { animation: finger-pinch 360ms var(--ease-bounce) both; }
+.recorder-svg .finger.is-moving.is-open { animation: finger-lift 300ms var(--ease) both; }
+.recorder-svg .finger-shadow { fill: var(--finger-shadow); }
+.recorder-svg .finger-pad {
+  fill: var(--finger-skin);
+  stroke: color-mix(in srgb, var(--finger-skin-shadow) 78%, var(--recorder-rim));
+  stroke-width: 1.35;
+}
+.recorder-svg .finger-nail {
+  fill: var(--finger-nail);
+  stroke: rgba(120, 62, 40, .28);
+  stroke-width: .7;
+}
+.recorder-svg .finger-crease {
+  fill: none;
+  stroke: var(--finger-skin-shadow);
+  stroke-width: 1.1;
+  stroke-linecap: round;
+  opacity: .56;
+}
+.recorder-svg .finger-accent {
+  fill: var(--finger-accent);
+  opacity: .86;
+}
 .recorder-svg text { font-family: var(--font-body); font-weight: 700; }
+
+@keyframes finger-press {
+  0% {
+    opacity: .14;
+    transform: translate(var(--finger-from-x), var(--finger-from-y)) scale(.84) rotate(var(--finger-lift-rot));
+  }
+  68% {
+    opacity: 1;
+    transform: translate(-1px, 1px) scale(1.04) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0deg);
+  }
+}
+@keyframes finger-pinch {
+  0% {
+    opacity: .18;
+    transform: translate(var(--finger-from-x), var(--finger-from-y)) scale(.84) rotate(var(--finger-lift-rot));
+  }
+  72% {
+    opacity: .98;
+    transform: translate(var(--finger-rest-x), var(--finger-rest-y)) scale(.98) rotate(0deg);
+  }
+  100% {
+    opacity: .96;
+    transform: translate(var(--finger-rest-x), var(--finger-rest-y)) scale(.94) rotate(0deg);
+  }
+}
+@keyframes finger-lift {
+  0% {
+    opacity: 1;
+    transform: translate(var(--finger-rest-x), var(--finger-rest-y)) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--finger-from-x), var(--finger-from-y)) scale(.82) rotate(var(--finger-lift-rot));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .recorder-svg .finger.is-moving { animation: none !important; }
+}
+[data-motion="reduce"] .recorder-svg .finger.is-moving { animation: none !important; }
 
 /* ---------- 카드 공통 ---------- */
 .card {

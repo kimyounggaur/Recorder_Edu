@@ -286,6 +286,9 @@ function recorderSVG(noteOrState, opts = {}) {
   const inter = !!opts.interactive;
   const lab = opts.labels !== false;
   const uid = String(opts.idPrefix || 'main').replace(/[^A-Za-z0-9_-]/g, '');
+  const showFingers = inter && opts.fingers !== false;
+  const activeFinger = opts.activeFinger == null ? null : String(opts.activeFinger);
+  const isMovingFinger = which => activeFinger === 'all' || activeFinger === String(which);
 
   /* 구멍 그리기 */
   function holeSVG(i) {
@@ -348,6 +351,65 @@ function recorderSVG(noteOrState, opts = {}) {
   if (lab) thumb += `<text x="26" y="113" font-size="10.5" fill="var(--ink-faint)" text-anchor="middle">뒤</text>`;
   thumb += '</g>';
 
+  function fingerVisual(width, height) {
+    const x = -width / 2, y = -height / 2;
+    return `
+      <rect class="finger-shadow" x="${x + 1.5}" y="${y + 2}" width="${width}" height="${height}" rx="${height / 2}"/>
+      <rect class="finger-pad" x="${x}" y="${y}" width="${width}" height="${height}" rx="${height / 2}"/>
+      <path class="finger-crease" d="M${x + 7} ${y + height - 4} C${x + 13} ${y + height - 1.5} ${x + width - 12} ${y + height - 1.5} ${x + width - 6} ${y + height - 4}"/>
+      <ellipse class="finger-nail" cx="${x + width - 8}" cy="${y + 6}" rx="${Math.min(5.2, width / 6)}" ry="${Math.min(3.8, height / 4.2)}"/>
+      <circle class="finger-accent" cx="${x + 6.2}" cy="${y + height - 5.5}" r="2.3"/>`;
+  }
+
+  function fingerClasses(which, v, hand, extra = '') {
+    const state = v >= 1 ? 'is-closed' : (v === 0.5 ? 'is-half' : 'is-open');
+    const moving = (activeFinger == null || isMovingFinger(which)) ? ' is-moving' : '';
+    return `finger finger-${hand} ${state}${moving}${extra ? ' ' + extra : ''}`;
+  }
+
+  function fingerStyle(hand, halfX, halfY) {
+    const dir = hand === 'left' ? -1 : 1;
+    const rot = hand === 'left' ? '-10deg' : '10deg';
+    return `--finger-from-x:${dir * 19}px;--finger-from-y:-13px;--finger-rest-x:${halfX}px;--finger-rest-y:${halfY}px;--finger-lift-rot:${rot}`;
+  }
+
+  function frontFingerSVG(i) {
+    if (!showFingers) return '';
+    const v = h[i];
+    const hand = HOLE_HAND[i];
+    const side = hand === 'left' ? -1 : 1;
+    const y = holeY[i];
+    const isDouble = i === 5 || i === 6;
+    const fullDouble = isDouble && v === 1;
+    const x = isDouble ? (fullDouble ? cx + 3.5 : cx - 4) : cx;
+    const fy = isDouble ? (fullDouble ? y + 3.5 : y) : y;
+    const angle = side * (isDouble ? 12 : 7);
+    const width = isDouble ? (fullDouble ? 38 : 28) : 34;
+    const height = isDouble ? 18 : 19;
+    const halfX = v === 0.5 ? side * -5 : 0;
+    const halfY = v === 0.5 ? 4 : 0;
+    const style = fingerStyle(hand, halfX, halfY);
+    return `<g class="finger-anchor" transform="translate(${x} ${fy}) rotate(${angle})">
+      <g class="${fingerClasses(i, v, hand, isDouble ? 'finger-double' : '')}" style="${style}">
+        ${fingerVisual(width, height)}
+      </g>
+    </g>`;
+  }
+
+  function thumbFingerSVG() {
+    if (!showFingers) return '';
+    const style = '--finger-from-x:-21px;--finger-from-y:-11px;--finger-rest-x:-6px;--finger-rest-y:4px;--finger-lift-rot:-12deg';
+    return `<g class="finger-anchor" transform="translate(26 132) rotate(-13)">
+      <g class="${fingerClasses('t', t, 'left', 'finger-thumb')}" style="${style}">
+        ${fingerVisual(36, 21)}
+      </g>
+    </g>`;
+  }
+
+  const fingers = showFingers
+    ? `<g class="finger-layer" aria-hidden="true">${thumbFingerSVG()}${h.map((v, i) => frontFingerSVG(i)).join('')}</g>`
+    : '';
+
   return `
   <svg class="recorder-svg${inter ? ' interactive' : ''}" viewBox="0 0 120 470" width="${W}" height="${H}"
        role="img" aria-label="리코더 운지 그림" xmlns="http://www.w3.org/2000/svg">
@@ -404,6 +466,7 @@ function recorderSVG(noteOrState, opts = {}) {
     </g>
     ${thumb}
     ${h.map((v, i) => holeSVG(i)).join('')}
+    ${fingers}
   </svg>`;
 }
 
